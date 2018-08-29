@@ -1,0 +1,112 @@
+#----------------------------------------------------------------------------bh-
+# This RPM .spec file is part of the OpenHPC project.
+#
+# It may have been modified from the default version supplied by the underlying
+# release package (if available) in order to apply patches, perform customized
+# build/install configurations, and supply additional files to support
+# desired integration conventions.
+#
+#----------------------------------------------------------------------------eh-
+
+%include %{_sourcedir}/OHPC_macros
+%{!?PROJ_DELIM: %global PROJ_DELIM -ohpc}
+
+%define pname {{{ git_name }}}
+
+Summary:   A simple utility for executing multiple sequential or multi-threaded
+applications in a single multi-node batch job.
+Name:      %{pname}%{PROJ_DELIM}
+Version:   {{{ git_version }}}
+Release:   1
+License:   BSD
+Group:     %{PROJ_NAME}/admin
+BuildArch: noarch
+URL:       https://github.com/TACC/launcher
+Source0:   {{{ git_pack }}}
+Source1:   OHPC_macros
+
+BuildRoot: %{_tmppath}/%{pname}-%{version}-%{release}-root
+DocDir:    %{OHPC_PUB}/doc/contrib
+
+%define package_target %{OHPC_UTILS}/%{pname}/%{version}
+
+%description
+Launcher is a utility for performing simple, data parallel, high throughput
+computing (HTC) workflows on clusters, massively parallel processor (MPP) systems,
+workgroups of computers, and personal machines.
+
+%prep
+{{{ git_setup_macro }}}
+
+%build
+# Binary pass-through - empty build section
+
+%install
+rm -rf $RPM_BUILD_ROOT
+
+%{__mkdir} -p %{buildroot}/%{package_target}/bin
+for i in init_launcher init_launcher_phi launcher paramrun pass_env tskserver tskserver.sh
+do
+	install -D -m 0755 $i %{buildroot}/%{package_target}/bin
+done
+# copy directory plugins
+%{__cp} -r plugins/* %{buildroot}/%{package_target}%{_bindir}
+
+# md2man-roff README.md | gzip -n -9 -c > launcher.1.gz
+%{__mkdir_p} %{buildroot}/%{package_target}/man
+install -D-m 0644 launcher.1.gz %{buildroot}/%{package_target}/man
+
+
+# OpenHPC modulefile
+
+%{__mkdir_p} %{buildroot}/%{OHPC_MODULES}/%{pname}
+%{__cat} << EOF > %{buildroot}/%{OHPC_MODULES}/%{pname}/%{version}
+#%Module1.0#####################################################################
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the TACC launch utility for"
+puts stderr "high-throughput workloads"
+puts stderr " "
+puts stderr "Version %{version}"
+puts stderr " "
+
+}
+
+module-whatis "Name: TACC launcher for high-throughput jobs"cat /empty
+module-whatis "Version: %{version}"
+module-whatis "Category: resource manager tools"
+module-whatis "Description: job launcher to be used in a multi-node environment"
+
+set     version                 %{version}
+
+setenv			LAUNCHER_DIR	%{package_target}/bin
+prepend-path    PATH            %{package_target}/bin
+prepend-path    MANPATH         %{package_target}/man
+
+EOF
+
+%{__cat} << EOF > %{buildroot}/%{OHPC_MODULES}/%{pname}/.version.%{version}
+#%Module1.0#####################################################################
+set     ModulesVersion      "%{version}"
+EOF
+
+%{__mkdir_p} ${RPM_BUILD_ROOT}/%{_docdir}
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%post
+
+%postun
+
+
+%files
+%defattr(-,root,root,-)
+%dir %{OHPC_HOME}
+%doc LICENSE README.md INSTALL
+
+%{OHPC_HOME}
+
+%changelog
+{{{ git_changelog }}}

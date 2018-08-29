@@ -1,3 +1,14 @@
+Launcher 1 "AUGUST 2018" Linux "User Manuals"
+=============================================
+
+NAME
+----
+
+Launcher - A simple utility for executing high throughput workloads
+
+DESCRIPTION
+-----------
+
 # Launcher
 [![Build Status](https://travis-ci.org/marshalllerner/launcher.svg?branch=master)](https://travis-ci.org/marshalllerner/launcher)
 [![status](http://joss.theoj.org/papers/7b5df63cd8a40f557d66051695d300a7/status.svg)](http://joss.theoj.org/papers/7b5df63cd8a40f557d66051695d300a7)
@@ -16,6 +27,9 @@ Included in the download is a file called "quickstart" found in the folder "test
 * Set `LAUNCHER_JOB_FILE` to point to your job file. Example job files are provided in extras/examples.
 * Be sure that `LAUNCHER_DIR` is set to the directory containing the launcher source files (user-installed ONLY. Not required if using system installed version of launcher).
 * From the command-line or within your jobscript, run:`$LAUNCHER_DIR/paramrun`
+
+ENVIRONMENT
+-----------
 
 ## Available Environment Variables
 
