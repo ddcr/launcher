@@ -13,14 +13,12 @@
 
 %define pname {{{ git_name }}}
 
-Summary:   A simple utility for executing multiple sequential or multi-threaded
-applications in a single multi-node batch job.
+Summary:   A simple utility for executing multiple sequential or multi-threaded applications in a single multi-node batch job.
 Name:      %{pname}%{PROJ_DELIM}
 Version:   {{{ git_version }}}
 Release:   1
 License:   BSD
 Group:     %{PROJ_NAME}/admin
-BuildArch: noarch
 URL:       https://github.com/TACC/launcher
 Source0:   {{{ git_pack }}}
 Source1:   OHPC_macros
@@ -50,11 +48,11 @@ do
 	install -D -m 0755 $i %{buildroot}/%{package_target}/bin
 done
 # copy directory plugins
-%{__cp} -r plugins/* %{buildroot}/%{package_target}%{_bindir}
+%{__cp} -r plugins %{buildroot}/%{package_target}/bin
 
 # md2man-roff README.md | gzip -n -9 -c > launcher.1.gz
 %{__mkdir_p} %{buildroot}/%{package_target}/man
-install -D-m 0644 launcher.1.gz %{buildroot}/%{package_target}/man
+install -D -m 0644 launcher.1.gz %{buildroot}/%{package_target}/man
 
 
 # OpenHPC modulefile
@@ -80,7 +78,7 @@ module-whatis "Description: job launcher to be used in a multi-node environment"
 
 set     version                 %{version}
 
-setenv			LAUNCHER_DIR	%{package_target}/bin
+setenv          LAUNCHER_DIR	%{package_target}/bin
 prepend-path    PATH            %{package_target}/bin
 prepend-path    MANPATH         %{package_target}/man
 
@@ -105,7 +103,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %dir %{OHPC_HOME}
 %doc LICENSE README.md INSTALL
-
+%doc tests paper extras
 %{OHPC_HOME}
 
 %changelog
