@@ -19,6 +19,37 @@ function lexit {
   exit
 }
 
+function version {
+  echo "$@" | gawk -F. '{ printf("%03d%03d%03d\n", $1, $2, $3); }';
+}
+
+function is_pyversion_avail {
+  local required_version=2.7
+  local ret=0
+
+  if which python55 > /dev/null 2>&1; then
+    current_version=`python -c 'import sys; print(".".join(map(str, sys.version_info[:2])))'`
+    if [ "$(version '$current_version')" -ge "$(version '$required_version')" ]; then
+      ret=1
+    fi
+  fi
+  echo "$ret"
+}
+
+#check if python with required version is available
+if [[ x"$(is_pyversion_avail)" != "x1" ]]; then
+  lwarn WARNING "Need python with version >= 2.7";
+  lwarn WARNING "Enable Red Hat Software Collection [Python 2.7]"
+
+  SCL_SOURCE=$(command -v scl_source)
+  [[ "${SCL_SOURCE}" ]] && source "${SCL_SOURCE}" enable python27 &> /dev/null
+  exitCode=$?
+  if [[ $exitCode != 0 ]]; then
+    lwarn WARN "Software Collection for Python 2.7 not enabled!"
+    lexit
+  fi
+fi
+
 #check if the program is running on a windows machine
 if grep -qE "(Microsoft|WSL)" /proc/version &> /dev/null ; then
     windowsP=true
@@ -172,7 +203,9 @@ if [ "$LAUNCHER_SCHED" == "dynamic" ]; then
         disown $LAUNCHER_DYN_PID
         sleep 1s
     else
+        scl enable python27 - << \EOF
         $LAUNCHER_DIR/tskserver $LAUNCHER_NJOBS $HOSTNAME 9471 2>/dev/null &
+        EOF
         LAUNCHER_DYN_PID=$!
         disown $LAUNCHER_DYN_PID
         sleep 1s  
