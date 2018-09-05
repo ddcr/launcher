@@ -71,7 +71,7 @@ puts stderr " "
 
 }
 
-module-whatis "Name: TACC launcher for high-throughput jobs"cat /empty
+module-whatis "Name: TACC launcher for high-throughput jobs"
 module-whatis "Version: %{version}"
 module-whatis "Category: resource manager tools"
 module-whatis "Description: job launcher to be used in a multi-node environment"
